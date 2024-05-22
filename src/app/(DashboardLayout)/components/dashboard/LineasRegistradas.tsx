@@ -8,25 +8,21 @@ import {
     TableCell,
     TableHead,
     TableRow,
-    Chip,
     Button
 } from '@mui/material';
 import DashboardCard from '@/app/(DashboardLayout)//components/shared/DashboardCard';
 import { useState } from 'react';
-interface point {
-    id: number;
-    control_point: string;
-    fastrack: number;
-    latitud: string,
-    longitud: string,
+interface line {
+    grupo: number;
+    name: string;
   }
 interface MyComponentProps {
-    data: point[];
+    data: line[];
   }
 
 
 
-const PuntosRegistrados = ({
+const LineasRegistradas = ({
     data
 }:MyComponentProps) => {
 
@@ -58,22 +54,17 @@ const PuntosRegistrados = ({
                         <TableRow>
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
-                                    Punto de Control
+                                    Nro
                                 </Typography>
                             </TableCell>
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
-                                    Fastrack
+                                    Grupo
                                 </Typography>
                             </TableCell>
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
-                                    Latitud
-                                </Typography>
-                            </TableCell>
-                            <TableCell>
-                                <Typography variant="subtitle2" fontWeight={600}>
-                                    Longitud
+                                    Nombre
                                 </Typography>
                             </TableCell>
                             <TableCell align="center">
@@ -86,8 +77,8 @@ const PuntosRegistrados = ({
                     <TableBody>
                         {data
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((product) => (
-                            <TableRow key={product.id}>
+                        .map((product,index) => (
+                            <TableRow key={index}>
                                 <TableCell>
                                     <Typography
                                         sx={{
@@ -95,7 +86,7 @@ const PuntosRegistrados = ({
                                             fontWeight: "500",
                                         }}
                                     >
-                                        {product.control_point}
+                                        {index}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
@@ -105,33 +96,21 @@ const PuntosRegistrados = ({
                                             fontWeight: "500",
                                         }}
                                     >
-                                        {product.fastrack}
+                                        {product.grupo}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Chip
+                                    <Typography
                                         sx={{
-                                            px: "4px",
-                                            backgroundColor: "#82E0AA",
-                                            color: "#fff",
+                                            fontSize: "15px",
+                                            fontWeight: "500",
                                         }}
-                                        size="small"
-                                        label={product.latitud}
-                                    ></Chip>
-                                </TableCell>
-                                <TableCell>
-                                    <Chip
-                                        sx={{
-                                            px: "4px",
-                                            backgroundColor: "#F0B27A",
-                                            color: "#fff",
-                                        }}
-                                        size="small"
-                                        label={product.longitud}
-                                    ></Chip>
+                                    >
+                                        {product.name}
+                                    </Typography>
                                 </TableCell>
                                 <TableCell align="center">
-                                <Button
+                                    <Button
                                         color="warning"
                                         variant="contained"
                                         size="small"
@@ -160,4 +139,4 @@ const PuntosRegistrados = ({
     );
 };
 
-export default PuntosRegistrados;
+export default LineasRegistradas;
