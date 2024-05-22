@@ -2,6 +2,8 @@
 import {
     Typography, Box,
     Table,
+    TableContainer,
+    TablePagination,
     TableBody,
     TableCell,
     TableHead,
@@ -10,24 +12,41 @@ import {
     Button
 } from '@mui/material';
 import DashboardCard from '@/app/(DashboardLayout)//components/shared/DashboardCard';
+import { useState } from 'react';
+interface point {
+    id: number;
+    control_point: string;
+    fastrack: number;
+    latitud: string,
+    longitud: string,
+  }
+interface MyComponentProps {
+    data: point[];
+  }
 
-const products = [
-    {
-        id: 1,
-        control_point: "Estancia del Río",
-        fastrack: 10,
-        latitud: "-3.95495",
-        longitud: "-79.2147",
-    },
-
-];
 
 
-const PuntosRegistrados = () => {
+const PuntosRegistrados = ({
+    data
+}:MyComponentProps) => {
+
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+    const handleChangePage = (event: unknown, newPage: number) => {
+      setPage(newPage);
+    };
+  
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setRowsPerPage(+event.target.value);
+      setPage(0);
+    };
     return (
 
         <DashboardCard title="Puntos Registrados">
             <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
+                <TableContainer sx={{ maxHeight: 340 }}>
                 <Table
                     aria-label="simple table"
                     sx={{
@@ -65,7 +84,9 @@ const PuntosRegistrados = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((product) => (
+                        {data
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((product) => (
                             <TableRow key={product.id}>
                                 <TableCell>
                                     <Typography
@@ -124,6 +145,16 @@ const PuntosRegistrados = () => {
                         ))}
                     </TableBody>
                 </Table>
+                </TableContainer>
+                <TablePagination
+                rowsPerPageOptions={[10, 25, 100]}
+                component="div"
+                count={data.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
             </Box>
         </DashboardCard>
     );
