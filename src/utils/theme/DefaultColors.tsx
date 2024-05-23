@@ -22,9 +22,9 @@ const baselightTheme = createTheme({
       dark: "#23afdb",
     },
     success: {
-      main: "#13DEB9",
-      light: "#E6FFFA",
-      dark: "#02b3a9",
+      main: "#58D68D",
+      light: "#82E0AA",
+      dark: "#27AE60",
       contrastText: "#ffffff",
     },
     info: {
@@ -45,6 +45,7 @@ const baselightTheme = createTheme({
       dark: "#ae8e59",
       contrastText: "#ffffff",
     },
+   
     grey: {
       100: "#F2F6FA",
       200: "#EAEFF4",
