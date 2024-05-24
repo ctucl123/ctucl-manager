@@ -29,6 +29,7 @@ import IconButton from '@mui/material/IconButton';
 
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Swal from 'sweetalert2';
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
 		backgroundColor: theme.palette.common.black,
@@ -38,22 +39,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 		fontSize: 14,
 	},
 }));
-import Swal from 'sweetalert2';
-interface pointType {
-	id: string;
-	control_point: string;
-	fastrack: number;
-	latitud: string,
-	longitud: string,
-	posicion: number
-}
-
-interface TabPanelProps {
-	children?: React.ReactNode;
-	index: number;
-	value: number;
-}
-
 function CustomTabPanel(props: TabPanelProps) {
 	const { children, value, index, ...other } = props;
 
@@ -67,7 +52,7 @@ function CustomTabPanel(props: TabPanelProps) {
 		>
 			{value === index && (
 				<Box sx={{ p: 3 }}>
-					<Typography>{children}</Typography>
+					<div>{children}</div>
 				</Box>
 			)}
 		</div>
@@ -80,8 +65,6 @@ function a11yProps(index: number) {
 		'aria-controls': `simple-tabpanel-${index}`,
 	};
 }
-const defaultPoints: pointType[] = [];
-
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	'&:nth-of-type(odd)': {
@@ -106,16 +89,33 @@ const TextFieldForm = styled((props: any) => <TextField {...props} />)(({ theme 
 		borderColor: theme.palette.grey[200],
 	},
 }));
+interface pointType {
+	id: string;
+	control_point: string;
+	fastrack: number;
+	latitud: string,
+	longitud: string,
+	posicion: number
+}
+
+interface TabPanelProps {
+	children?: React.ReactNode;
+	index: number;
+	value: number;
+}
+
+const defaultPoints: pointType[] = [];
+
 const RegisterLinesPage = () => {
 
 
-	const [value, setValue] = useState<pointType | null>(null);
+	const [selectedPoint, setSelectedPoint] = useState<pointType | null>(null);
 	const [inputValue, setInputValue] = useState('');
 	const [group, setGroup] = useState('');
 	const [tipo, setTipo] = useState('0');
-	const [dataPoint, setDataPoint] = useState(defaultPoints);
-	const [points, setPoints] = useState(defaultPoints);
-	const [returnPoints, setReturnPoints] = useState<pointType[]>([]);
+	const [dbPoints, setDbPoints] = useState<pointType[]>(defaultPoints);
+	const [startingPoints, setStartingPoints] = useState<pointType[]>(defaultPoints);
+	const [returnPoints, setReturnPoints] = useState<pointType[]>(defaultPoints);
 	const [tab, setTab] = useState(0);
 	const handleChange = (event: SelectChangeEvent) => {
 		setGroup(event.target.value);
@@ -126,9 +126,9 @@ const RegisterLinesPage = () => {
 		setTab(parseInt(event.target.value, 10));
 	};
 	const agregarPuntoLinea = () => {
-		console.log(value)
+
 		console.log("hola")
-		if (value === null) {
+		if (selectedPoint === null) {
 			Swal.fire({
 				title: "Error!",
 				text: "Seleccione un punto",
@@ -136,33 +136,32 @@ const RegisterLinesPage = () => {
 			});
 		} else {
 			if (tipo === "0") {
-
-				let aux_points = JSON.parse(JSON.stringify(points))
-				let flag: boolean = aux_points.some((obj: pointType) => obj.id === value.id);
+				let aux_points = JSON.parse(JSON.stringify(startingPoints))
+				let flag: boolean = aux_points.some((obj: pointType) => obj.id === selectedPoint.id);
 				const aux_pos = aux_points.length + 1
 				if (flag === false) {
 					const aux_data = {
-						id: value.id,
-						control_point: value.control_point,
-						fastrack: value.fastrack,
-						latitud: value.latitud,
-						longitud: value.longitud,
+						id: selectedPoint.id,
+						control_point: selectedPoint.control_point,
+						fastrack: selectedPoint.fastrack,
+						latitud: selectedPoint.latitud,
+						longitud: selectedPoint.longitud,
 						posicion: aux_pos,
 					}
 					aux_points.push(aux_data)
-					setPoints(aux_points)
+					setStartingPoints(aux_points)
 				}
 			} else {
 				let aux_points_return = JSON.parse(JSON.stringify(returnPoints))
-				let flag: boolean = aux_points_return.some((obj: pointType) => obj.id === value.id);
+				let flag: boolean = aux_points_return.some((obj: pointType) => obj.id === selectedPoint.id);
 				const aux_pos = aux_points_return.length + 1
 				if (flag === false) {
 					const aux_data = {
-						id: value.id,
-						control_point: value.control_point,
-						fastrack: value.fastrack,
-						latitud: value.latitud,
-						longitud: value.longitud,
+						id: selectedPoint.id,
+						control_point: selectedPoint.control_point,
+						fastrack: selectedPoint.fastrack,
+						latitud: selectedPoint.latitud,
+						longitud: selectedPoint.longitud,
 						posicion: aux_pos,
 					}
 					aux_points_return.push(aux_data)
@@ -172,50 +171,90 @@ const RegisterLinesPage = () => {
 		}
 	}
 
-	const movePoint = (target: pointType, tipo: number, up: boolean) => {
-			let aux_points = []
-			if(tipo === 0 ){
-				aux_points = JSON.parse(JSON.stringify(points))
-			}else{
-				aux_points = JSON.parse(JSON.stringify(returnPoints))
-			}
-			let aux_lon = aux_points.lenght - 1
-			if (up) {
-				if (aux_points[aux_lon].id === target.id) {
-					// aqui debo crear la condicion para cuando el punto que quiera mover este en el maximo
-				} else {
-					let aux_posicion = target.posicion + 1
-					let points_organized = aux_points.map((item: pointType) => {
-						if (item.posicion === aux_posicion) {
-							item.posicion = item.posicion - 1
-						}
-						if (item.id === target.id) {
-							item.posicion = aux_posicion
-						}
-						return item
-					})
-				}
-			} else {
-				if (aux_points[0].id === target.id) {
-					// aqui debo crear la condicion para cuando el punto que quiera mover este en el maximo
-				} else {
-					let aux_posicion = target.posicion - 1
-					let points_organized = aux_points.map((item: pointType) => {
-						if (item.posicion === aux_posicion) {
-							item.posicion = item.posicion + 1
-						}
-						if (item.id === target.id) {
-							item.posicion = aux_posicion
-						}
-						return item
-					})
-				}
 
+	const movePointReturn = (target: pointType, up: boolean) => {
+		let aux_points = JSON.parse(JSON.stringify(returnPoints))
+		let aux_lon = aux_points.length - 1
+		if (up) {
+			if (aux_points[aux_lon].id === target.id) {
+				// aqui debo crear la condicion para cuando el punto que quiera mover este en el maximo
+			} else {
+				let aux_posicion = target.posicion + 1
+				let points_organized = aux_points.map((item: pointType) => {
+					if (item.posicion === aux_posicion) {
+						item.posicion = item.posicion - 1
+					}
+					if (item.id === target.id) {
+						item.posicion = aux_posicion
+					}
+					return item
+				})
+				points_organized.sort((a: pointType, b: pointType) => a.posicion - b.posicion);
+				setReturnPoints(points_organized)
 			}
-	
+		} else {
+			if (aux_points[0].id === target.id) {
+				// aqui debo crear la condicion para cuando el punto que quiera mover este en el maximo
+			} else {
+				let aux_posicion = target.posicion - 1
+				let points_organized = aux_points.map((item: pointType) => {
+					if (item.posicion === aux_posicion) {
+						item.posicion = item.posicion + 1
+					}
+					if (item.id === target.id) {
+						item.posicion = aux_posicion
+					}
+					return item
+				})
+				points_organized.sort((a: pointType, b: pointType) => a.posicion - b.posicion);
+				setReturnPoints(points_organized)
+			}
+
+		}
+
 	}
 
+	const movePoint = (target: pointType, up: boolean) => {
+		let aux_points = JSON.parse(JSON.stringify(startingPoints))
+		let aux_lon = aux_points.length - 1
+		if (up) {
+			if (aux_points[aux_lon].id === target.id) {
+				// aqui debo crear la condicion para cuando el punto que quiera mover este en el maximo
+			} else {
+				let aux_posicion = target.posicion + 1
+				let points_organized = aux_points.map((item: pointType) => {
+					if (item.posicion === aux_posicion) {
+						item.posicion = item.posicion - 1
+					}
+					if (item.id === target.id) {
+						item.posicion = aux_posicion
+					}
+					return item
+				})
+				points_organized.sort((a: pointType, b: pointType) => a.posicion - b.posicion);
+				setStartingPoints(points_organized)
+			}
+		} else {
+			if (aux_points[0].id === target.id) {
+				// aqui debo crear la condicion para cuando el punto que quiera mover este en el maximo
+			} else {
+				let aux_posicion = target.posicion - 1
+				let points_organized = aux_points.map((item: pointType) => {
+					if (item.posicion === aux_posicion) {
+						item.posicion = item.posicion + 1
+					}
+					if (item.id === target.id) {
+						item.posicion = aux_posicion
+					}
+					return item
+				})
+				points_organized.sort((a: pointType, b: pointType) => a.posicion - b.posicion);
+				setStartingPoints(points_organized)
+			}
 
+		}
+
+	}
 	const handleTab = (event: React.SyntheticEvent, newValue: number) => {
 		setTab(newValue);
 	};
@@ -227,7 +266,7 @@ const RegisterLinesPage = () => {
 		querySnapshot.forEach((doc) => {
 			aux_data.push(doc.data())
 		});
-		setDataPoint(aux_data)
+		setDbPoints(aux_data)
 
 	}
 	useEffect(() => {
@@ -303,11 +342,11 @@ const RegisterLinesPage = () => {
 						<Grid item xs={12} lg={8}>
 							<Autocomplete
 								size='small'
-								value={value}
+								value={selectedPoint}
 								fullWidth
 								onChange={(event, newValue) => {
 
-									setValue(newValue);
+									setSelectedPoint(newValue);
 								}}
 								inputValue={inputValue}
 								onInputChange={(event, newInputValue) => {
@@ -321,7 +360,7 @@ const RegisterLinesPage = () => {
 									return option.control_point;
 								}}
 								id="controllable-states-demo"
-								options={dataPoint}
+								options={dbPoints}
 								renderInput={(params) => <TextField {...params} label="Seleccionar Punto" />}
 							/>
 						</Grid>
@@ -356,8 +395,8 @@ const RegisterLinesPage = () => {
 						</Tabs>
 					</Box>
 					<CustomTabPanel value={tab} index={0}>
-						<h4>Puntos de Ida</h4>
-						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight: 350 }}>
+
+						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight:500 }}>
 							<Table aria-label="customized table">
 								<TableHead>
 									<TableRow>
@@ -370,14 +409,14 @@ const RegisterLinesPage = () => {
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{points.map((row, index) => (
+									{startingPoints.map((row, index) => (
 										<StyledTableRow key={index}>
 											<StyledTableCell component="th" scope="row">
 												<Stack>
-													<IconButton aria-label="delete" size="small" color="primary" onClick={()=>{movePoint(row,0,true)}} >
+													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePoint(row, false) }} >
 														<KeyboardArrowUpIcon />
 													</IconButton>
-													<IconButton aria-label="delete" size="small" color="primary" onClick={()=>{movePoint(row,0,false)}} >
+													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePoint(row, true) }} >
 														<KeyboardArrowDownIcon />
 													</IconButton>
 												</Stack>
@@ -398,11 +437,13 @@ const RegisterLinesPage = () => {
 						</TableContainer>
 					</CustomTabPanel>
 					<CustomTabPanel value={tab} index={1}>
-						<h4>Puntos de Regreso</h4>
-						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight: 350 }}>
+
+						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight: 500 }}>
 							<Table aria-label="customized table">
-								<TableHead>
+							<TableHead>
 									<TableRow>
+										<StyledTableCell></StyledTableCell>
+										<StyledTableCell>Posicion</StyledTableCell>
 										<StyledTableCell>Direccion</StyledTableCell>
 										<StyledTableCell align="right">Fastrack</StyledTableCell>
 										<StyledTableCell align="right">Longitud</StyledTableCell>
