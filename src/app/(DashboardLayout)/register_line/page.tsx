@@ -96,8 +96,8 @@ interface pointType {
 	id: string;
 	control_point: string;
 	fastrack: number;
-	latitud: string,
-	longitud: string,
+	latitud: number,
+	longitud: number,
 	posicion: number
 }
 
@@ -130,6 +130,14 @@ interface newLine{
 	lastModify:any[]
 }
 
+const initialPoint:pointType = {
+	id: '',
+	control_point: '',
+	fastrack: 0,
+	latitud: -3.9984601609417387,
+	longitud: -79.20509166599096,
+	posicion: 0
+}
 
 
 const defaultPoints: pointType[] = [];
@@ -137,7 +145,7 @@ const defaultPoints: pointType[] = [];
 const RegisterLinesPage = () => {
 
 
-	const [selectedPoint, setSelectedPoint] = useState<pointType | null>(null);
+	const [selectedPoint, setSelectedPoint] = useState<pointType>(initialPoint);
 	const [inputValue, setInputValue] = useState('');
 	const [group, setGroup] = useState('1');
 	const [tipo, setTipo] = useState('0');
@@ -147,6 +155,7 @@ const RegisterLinesPage = () => {
 	const [tab, setTab] = useState(0);
 	const [description,setDescription] = useState('');
 	const [name,setName] = useState('');
+	const [currentPosition,setCurrentPosition] = useState();
 	const handleChange = (event: SelectChangeEvent) => {
 		setGroup(event.target.value);
 	};
@@ -371,8 +380,72 @@ const RegisterLinesPage = () => {
 					<Grid container spacing={3}>
 						<Grid item xs={12} lg={12}>
 							<DashboardCard title="Registro de Lineas">
-								<Typography>Esta es la pagina de registro de lineas</Typography>
+								<Typography>Seleccione los puntos de la linea y posteriormente llene los campos solicitados</Typography>
 							</DashboardCard>
+						</Grid>
+						<Grid item xs={12} lg={12}>
+							<Typography
+								variant="subtitle1"
+								fontWeight={600}
+								component="label"
+								htmlFor="password"
+								mb="8px"
+							>
+								Seleccion de puntos
+							</Typography>
+						</Grid>
+						<Grid item xs={12} lg={12}>
+							<div style={{width:"100%",height:300}}>
+								<Map position={[selectedPoint.latitud, selectedPoint.longitud]}/>
+							</div>
+						</Grid>
+						<Grid item xs={12} lg={8}>
+							<Autocomplete
+								size='small'
+								value={selectedPoint}
+								fullWidth
+								onChange={(event, newValue) => {
+									console.log(newValue);
+									if(newValue !== null){
+										setSelectedPoint(newValue);
+									}else{
+										setSelectedPoint(initialPoint)
+									}
+								}}
+								inputValue={inputValue}
+								onInputChange={(event, newInputValue) => {
+									setInputValue(newInputValue);
+								}}
+								getOptionLabel={(option) => {
+									// Value selected with enter, right from the input
+									if (typeof option === 'string') {
+										return option;
+									}
+									return option.control_point;
+								}}
+								id="controllable-states-demo"
+								options={dbPoints}
+								renderInput={(params) => <TextField {...params} label="Seleccionar Punto" />}
+							/>
+						</Grid>
+						<Grid item xs={12} lg={4}>
+
+							<FormControl sx={{ m: 0, minWidth: 120 }} fullWidth size="small">
+								<InputLabel id="demo-select-small-label">Tipo</InputLabel>
+								<Select
+									labelId="demo-select-small-label"
+									id="demo-select-small"
+									value={tipo}
+									label="Tipo"
+									onChange={handleTipo}
+								>a
+									<MenuItem value={'0'}>Ida</MenuItem>
+									<MenuItem value={'1'}>Regreso</MenuItem>
+								</Select>
+							</FormControl>
+						</Grid>
+						<Grid item xs={12} lg={12}>
+							<Button variant="contained" onClick={agregarPuntoLinea} color='success'>Agregar Punto</Button>
 						</Grid>
 						<Grid item xs={12} lg={6}>
 							<Stack spacing={2}>
@@ -451,64 +524,13 @@ const RegisterLinesPage = () => {
 									/>
 							</Stack>
 						</Grid>
-						<Grid item xs={12} lg={12}>
-							<Typography
-								variant="subtitle1"
-								fontWeight={600}
-								component="label"
-								htmlFor="password"
-								mb="8px"
-							>
-								Seleccion de puntos
-							</Typography>
-						</Grid>
-						<Grid item xs={12} lg={8}>
-							<Autocomplete
-								size='small'
-								value={selectedPoint}
-								fullWidth
-								onChange={(event, newValue) => {
-
-									setSelectedPoint(newValue);
-								}}
-								inputValue={inputValue}
-								onInputChange={(event, newInputValue) => {
-									setInputValue(newInputValue);
-								}}
-								getOptionLabel={(option) => {
-									// Value selected with enter, right from the input
-									if (typeof option === 'string') {
-										return option;
-									}
-									return option.control_point;
-								}}
-								id="controllable-states-demo"
-								options={dbPoints}
-								renderInput={(params) => <TextField {...params} label="Seleccionar Punto" />}
-							/>
-						</Grid>
-						<Grid item xs={12} lg={4}>
-
-							<FormControl sx={{ m: 0, minWidth: 120 }} fullWidth size="small">
-								<InputLabel id="demo-select-small-label">Tipo</InputLabel>
-								<Select
-									labelId="demo-select-small-label"
-									id="demo-select-small"
-									value={tipo}
-									label="Tipo"
-									onChange={handleTipo}
-								>a
-									<MenuItem value={'0'}>Ida</MenuItem>
-									<MenuItem value={'1'}>Regreso</MenuItem>
-								</Select>
-							</FormControl>
-						</Grid>
-						<Grid item xs={12} lg={12}>
-							<Button variant="contained" onClick={agregarPuntoLinea} color='success'>Agregar Punto</Button>
-						</Grid>
-						<Grid item xs={12} lg={12}>
-							
-						</Grid>
+						<Grid item xs={12} >
+				
+							<Button variant="contained" fullWidth onClick={postData} color='secondary'>Registrar Linea</Button>
+			
+				</Grid>
+						
+						
 					</Grid>
 
 				</Grid>
@@ -607,14 +629,8 @@ const RegisterLinesPage = () => {
 
 				</Grid>
 	
-				<Grid item xs={12} lg={10}>
-
-				</Grid>
-				<Grid item xs={12} lg={2}>
 				
-							<Button variant="contained" fullWidth onClick={postData} color='secondary'>Registrar Linea</Button>
-			
-				</Grid>
+				
 			</Grid>
 
 

@@ -1,21 +1,35 @@
-import { MapContainer, Marker, TileLayer, Tooltip,Popup } from "react-leaflet"
-import "leaflet/dist/leaflet.css"
-import "leaflet-defaulticon-compatibility"
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css"
+import { MapContainer, Circle, TileLayer,useMap  } from 'react-leaflet'
+import { LatLngExpression } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useEffect } from 'react';
 
-export default function MyMap(props: any) {
-  const { position, zoom } = props
+type Props = {
+    position: LatLngExpression;
+  };
 
-  return <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
-  <TileLayer
-    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-  />
-  <Marker position={[51.505, -0.09]}>
-    <Popup>
-      A pretty CSS3 popup. <br /> Easily customizable.
-    </Popup>
-  </Marker>
-</MapContainer>
+const Map = ({ position }: Props) => {
+    
+  return (
+    <MapContainer center={position} zoom={17} scrollWheelZoom={false} style={{height: "100%", width: "100%"}}>
+        <UpdateCenter position={position} />
+      <TileLayer
+        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        url="https://tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=dc6c9fa0348f4922916b4b87c871e1ce"
+      />
+      <Circle center={position} radius={15} />
+    </MapContainer>
+  )
 }
 
+const UpdateCenter = ({ position }: { position: LatLngExpression }) => {
+    const map = useMap();
+  
+    useEffect(() => {
+      map.setView(position);
+    }, [position, map]);
+  
+    return null;
+  };
+  
+
+export default Map
