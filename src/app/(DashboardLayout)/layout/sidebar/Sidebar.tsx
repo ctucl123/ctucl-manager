@@ -37,6 +37,7 @@ const Sidebar = ({
             sx: {
               width: sidebarWidth,
               boxSizing: "border-box",
+              zIndex:0
             },
           }}
         >

@@ -21,15 +21,18 @@ import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
 import { db } from '@/app/firebaseConfig';
-import { getDocs, collection } from 'firebase/firestore';
+import { getDocs, collection,setDoc ,doc } from 'firebase/firestore';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-
+import { uuid } from 'uuidv4';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Swal from 'sweetalert2';
+import { Map } from '@mui/icons-material';
+import { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
 		backgroundColor: theme.palette.common.black,
@@ -76,7 +79,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	},
 }));
 
-const TextFieldForm = styled((props: any) => <TextField {...props} />)(({ theme }) => ({
+const TextFieldForm = styled((props: any) => <TextField  {...props} />)(({ theme }) => ({
 	'& .MuiOutlinedInput-input::-webkit-input-placeholder': {
 		color: theme.palette.text.secondary,
 		opacity: '0.8',
@@ -103,6 +106,31 @@ interface TabPanelProps {
 	index: number;
 	value: number;
 }
+interface newDate{
+	day:number,
+	month:number,
+	year:number,
+	hours:number,
+	minutes:number,
+	seconds:number
+}
+type resumePoint = {
+	id:string,
+	position:number
+}
+
+interface newLine{
+	group:string,
+	id:string,
+	date:newDate,
+	starting:resumePoint[],
+	return:resumePoint[],
+	name:string,
+	description:string,
+	lastModify:any[]
+}
+
+
 
 const defaultPoints: pointType[] = [];
 
@@ -111,12 +139,14 @@ const RegisterLinesPage = () => {
 
 	const [selectedPoint, setSelectedPoint] = useState<pointType | null>(null);
 	const [inputValue, setInputValue] = useState('');
-	const [group, setGroup] = useState('');
+	const [group, setGroup] = useState('1');
 	const [tipo, setTipo] = useState('0');
 	const [dbPoints, setDbPoints] = useState<pointType[]>(defaultPoints);
 	const [startingPoints, setStartingPoints] = useState<pointType[]>(defaultPoints);
 	const [returnPoints, setReturnPoints] = useState<pointType[]>(defaultPoints);
 	const [tab, setTab] = useState(0);
+	const [description,setDescription] = useState('');
+	const [name,setName] = useState('');
 	const handleChange = (event: SelectChangeEvent) => {
 		setGroup(event.target.value);
 	};
@@ -269,6 +299,67 @@ const RegisterLinesPage = () => {
 		setDbPoints(aux_data)
 
 	}
+
+	const postData=async()=>{
+		if(name === null || name=== "" || startingPoints.length === 0 || returnPoints.length === 0){
+			Swal.fire({
+				icon: "warning",
+				title: "Debes llenar el Campo numero",
+				showConfirmButton: false,
+				timer: 1500,
+				
+			  });
+		}else{
+			let now = new Date();
+			let date:newDate = {
+					day: now.getDate(),
+					month: now.getMonth() + 1, // Los meses empiezan desde 0
+					year :now.getFullYear(),
+					hours : now.getHours(),
+					minutes : now.getMinutes(),
+					seconds : now.getSeconds(),
+			}
+			let startingData:resumePoint[] = startingPoints.map((item)=>({
+				id:item.id,
+				position:item.posicion
+			}))
+			let returnData:resumePoint[] = returnPoints.map((item)=>({
+				id:item.id,
+				position:item.posicion
+			}))
+			const newId = uuid(); 
+			let newline:newLine = {
+				group:group,
+				id: newId,
+				date: date,
+				starting:startingData,
+				return:returnData,
+				name:"LINEA-"+name,
+				description:description,
+				lastModify:[]
+			}
+			await setDoc(doc(db, "lines", newId), newline);
+			setName('')
+			setDescription('')
+			setStartingPoints(defaultPoints)
+			setReturnPoints(defaultPoints)
+			Swal.fire({
+				title: "Exito",
+				text: "Linea Creada con Exito!",
+				icon: "success"
+			  });	  
+		}
+
+	}
+
+	const Map = useMemo(() => dynamic(
+		() => import('../components/shared/Map'),
+		{ 
+		  loading: () => <p>A map is loading</p>,
+		  ssr: false
+		}
+	  ), [])
+
 	useEffect(() => {
 		getData();
 	}, []);
@@ -294,7 +385,16 @@ const RegisterLinesPage = () => {
 								>
 									Numero de la linea
 								</Typography>
-								<TextFieldForm fullWidth type="text" size="small" variant="outlined" />
+								<TextFieldForm 
+									fullWidth 
+									type="number" 
+									size="small" 
+									variant="outlined"
+									value={name}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+									setName(event.target.value);
+									}}
+								 />
 							</Stack>
 						</Grid>
 						<Grid item xs={12} lg={6}>
@@ -318,15 +418,38 @@ const RegisterLinesPage = () => {
 										label="Grupo"
 										onChange={handleChange}
 									>
-										<MenuItem value="">z
-											<em>None</em>
-										</MenuItem>
+										
 										<MenuItem value={1}>Grupo 1</MenuItem>
 										<MenuItem value={2}>Grupo 2</MenuItem>
 									</Select>
 								</FormControl>
 							</Stack>
 
+						</Grid>
+						<Grid item xs={12} lg={12}>
+							<Stack spacing={2}>
+								<Typography
+									variant="subtitle1"
+									fontWeight={600}
+									component="label"
+									htmlFor="password"
+									mb="8px"
+								>
+									Descripcion
+								</Typography>
+								<TextFieldForm 
+									multiline 
+									rows={4} 
+									fullWidth 
+									type="text" 
+									size="small"  
+									variant="outlined"
+									value={description}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+									setDescription(event.target.value);
+									}}
+									/>
+							</Stack>
 						</Grid>
 						<Grid item xs={12} lg={12}>
 							<Typography
@@ -381,9 +504,11 @@ const RegisterLinesPage = () => {
 							</FormControl>
 						</Grid>
 						<Grid item xs={12} lg={12}>
-							<Button variant="contained" onClick={agregarPuntoLinea} color='success'>Registrar Punto</Button>
+							<Button variant="contained" onClick={agregarPuntoLinea} color='success'>Agregar Punto</Button>
 						</Grid>
-
+						<Grid item xs={12} lg={12}>
+							
+						</Grid>
 					</Grid>
 
 				</Grid>
@@ -396,7 +521,7 @@ const RegisterLinesPage = () => {
 					</Box>
 					<CustomTabPanel value={tab} index={0}>
 
-						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight:500 }}>
+						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight:480 }}>
 							<Table aria-label="customized table">
 								<TableHead>
 									<TableRow>
@@ -438,7 +563,7 @@ const RegisterLinesPage = () => {
 					</CustomTabPanel>
 					<CustomTabPanel value={tab} index={1}>
 
-						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight: 500 }}>
+						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight: 480 }}>
 							<Table aria-label="customized table">
 							<TableHead>
 									<TableRow>
@@ -454,6 +579,19 @@ const RegisterLinesPage = () => {
 									{returnPoints.map((row, index) => (
 										<StyledTableRow key={index}>
 											<StyledTableCell component="th" scope="row">
+												<Stack>
+													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePointReturn(row, false) }} >
+														<KeyboardArrowUpIcon />
+													</IconButton>
+													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePointReturn(row, true) }} >
+														<KeyboardArrowDownIcon />
+													</IconButton>
+												</Stack>
+											</StyledTableCell>
+											<StyledTableCell component="th" scope="row">
+												{row.posicion}
+											</StyledTableCell>
+											<StyledTableCell component="th" scope="row">
 												{row.control_point}
 											</StyledTableCell>
 											<StyledTableCell align="right">{row.fastrack}</StyledTableCell>
@@ -467,6 +605,15 @@ const RegisterLinesPage = () => {
 					</CustomTabPanel>
 
 
+				</Grid>
+	
+				<Grid item xs={12} lg={10}>
+
+				</Grid>
+				<Grid item xs={12} lg={2}>
+				
+							<Button variant="contained" fullWidth onClick={postData} color='secondary'>Registrar Linea</Button>
+			
 				</Grid>
 			</Grid>
 
