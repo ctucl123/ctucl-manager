@@ -12,12 +12,9 @@ import {
 } from '@mui/material';
 import DashboardCard from '@/app/(DashboardLayout)//components/shared/DashboardCard';
 import { useState } from 'react';
-interface line {
-    grupo: number;
-    name: string;
-  }
+import { newLine } from '@/app/appTypes';
 interface MyComponentProps {
-    data: line[];
+    data: newLine[];
   }
 
 
@@ -59,12 +56,17 @@ const LineasRegistradas = ({
                             </TableCell>
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
-                                    Grupo
+                                    Nombre
                                 </Typography>
                             </TableCell>
                             <TableCell>
                                 <Typography variant="subtitle2" fontWeight={600}>
-                                    Nombre
+                                    Descripcion
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="subtitle2" fontWeight={600}>
+                                    Grupo
                                 </Typography>
                             </TableCell>
                             <TableCell align="center">
@@ -89,6 +91,26 @@ const LineasRegistradas = ({
                                         {index}
                                     </Typography>
                                 </TableCell>
+                                            <TableCell>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: "15px",
+                                                        fontWeight: "500",
+                                                    }}
+                                                >
+                                                    {product.name}
+                                                </Typography>
+                                            </TableCell>
+                                     <TableCell>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: "15px",
+                                                        fontWeight: "500",
+                                                    }}
+                                                >
+                                                    {product.name}
+                                                </Typography>
+                                            </TableCell>
                                 <TableCell>
                                     <Typography
                                         sx={{
@@ -96,17 +118,7 @@ const LineasRegistradas = ({
                                             fontWeight: "500",
                                         }}
                                     >
-                                        {product.grupo}
-                                    </Typography>
-                                </TableCell>
-                                <TableCell>
-                                    <Typography
-                                        sx={{
-                                            fontSize: "15px",
-                                            fontWeight: "500",
-                                        }}
-                                    >
-                                        {product.name}
+                                        {product.group}
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">

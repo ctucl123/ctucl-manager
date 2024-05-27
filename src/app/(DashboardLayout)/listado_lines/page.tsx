@@ -7,14 +7,15 @@ import { db } from '@/app/firebaseConfig';
 import { Query,getDocs,collection } from 'firebase/firestore';
 import React,{useState,useEffect} from 'react';
 import LineasRegistradas from '../components/dashboard/LineasRegistradas';
+import { newLine } from '@/app/appTypes';
 
 
 export default function LinesRegisterPage(){
-  const [data, setData] = useState(products);
+  const [data, setData] = useState<newLine[]>([]);
 
 
   const  getData = async() => {
-    const querySnapshot = await getDocs(collection(db, "lineas"));
+    const querySnapshot = await getDocs(collection(db, "lines"));
     const aux_data:any = [];
     querySnapshot.forEach((doc) => {
       console.log(doc.id, " => ", doc.data());
@@ -44,10 +45,3 @@ export default function LinesRegisterPage(){
 }
 
 
-const products = [
-  {
-    grupo:0,
-    name:"",
-  },
-
-];
