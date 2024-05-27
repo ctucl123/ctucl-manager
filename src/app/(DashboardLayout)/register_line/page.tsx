@@ -41,6 +41,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { LatLngExpression } from 'leaflet';
+import { newLine,resumePoint,newDate,pointType } from '@/app/appTypes';
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
 		backgroundColor: theme.palette.common.black,
@@ -100,43 +101,13 @@ const TextFieldForm = styled((props: any) => <TextField  {...props} />)(({ theme
 		borderColor: theme.palette.grey[200],
 	},
 }));
-interface pointType {
-	id: string;
-	control_point: string;
-	fastrack: number;
-	latitud: number,
-	longitud: number,
-	posicion: number
-}
 
 interface TabPanelProps {
 	children?: React.ReactNode;
 	index: number;
 	value: number;
 }
-interface newDate {
-	day: number,
-	month: number,
-	year: number,
-	hours: number,
-	minutes: number,
-	seconds: number
-}
-type resumePoint = {
-	id: string,
-	position: number
-}
 
-interface newLine {
-	group: string,
-	id: string,
-	date: newDate,
-	starting: resumePoint[],
-	return: resumePoint[],
-	name: string,
-	description: string,
-	lastModify: any[]
-}
 
 const initialPoint: pointType = {
 	id: '',

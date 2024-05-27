@@ -26,10 +26,19 @@ interface newLine {
 
 
 
+interface pointType {
+	id: string;
+	control_point: string;
+	fastrack: number;
+	latitud: number,
+	longitud: number,
+	posicion: number
+}
 
 //exportacion de los typados
 export type {
     newDate,
     newLine,
-    resumePoint
+    resumePoint,
+	pointType
 }
