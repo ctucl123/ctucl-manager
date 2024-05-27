@@ -1,13 +1,11 @@
 import {
-  IconAperture,
-  IconCopy,
   IconLayoutDashboard,
   IconBus,
   IconMap2,
   IconList,
-  IconUserPlus,
-  IconAddressBook
-} from "@tabler/icons-react";
+  IconAddressBook,
+  IconRectangularPrism
+,} from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
 
@@ -54,6 +52,16 @@ const Menuitems = [
     title: "Listado de Lineas",
     icon: IconList,
     href: "/listado_lines",
+  },
+  {
+    navlabel: true,
+    subheader: "Recargadores",
+  },
+  {
+    id: uniqueId(),
+    title: "Registro de Punto",
+    icon: IconRectangularPrism,
+    href: "/puntos_recarga",
   },
 ];
 
