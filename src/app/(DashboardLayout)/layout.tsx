@@ -57,7 +57,7 @@ export default function RootLayout({
         <Container
           sx={{
             paddingTop: "20px",
-            minWidth: "1200px",
+           
           }}
           
         >

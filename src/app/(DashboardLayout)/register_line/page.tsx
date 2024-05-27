@@ -21,7 +21,7 @@ import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
 import { db } from '@/app/firebaseConfig';
-import { getDocs, collection,setDoc ,doc } from 'firebase/firestore';
+import { getDocs, collection, setDoc, doc } from 'firebase/firestore';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -30,7 +30,13 @@ import { uuid } from 'uuidv4';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Swal from 'sweetalert2';
-import { Map } from '@mui/icons-material';
+import RouteIcon from '@mui/icons-material/Route';
+import Dialog, { DialogProps } from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import MapRoute from '../components/shared/MapRoute';
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -106,31 +112,31 @@ interface TabPanelProps {
 	index: number;
 	value: number;
 }
-interface newDate{
-	day:number,
-	month:number,
-	year:number,
-	hours:number,
-	minutes:number,
-	seconds:number
+interface newDate {
+	day: number,
+	month: number,
+	year: number,
+	hours: number,
+	minutes: number,
+	seconds: number
 }
 type resumePoint = {
-	id:string,
-	position:number
+	id: string,
+	position: number
 }
 
-interface newLine{
-	group:string,
-	id:string,
-	date:newDate,
-	starting:resumePoint[],
-	return:resumePoint[],
-	name:string,
-	description:string,
-	lastModify:any[]
+interface newLine {
+	group: string,
+	id: string,
+	date: newDate,
+	starting: resumePoint[],
+	return: resumePoint[],
+	name: string,
+	description: string,
+	lastModify: any[]
 }
 
-const initialPoint:pointType = {
+const initialPoint: pointType = {
 	id: '',
 	control_point: '',
 	fastrack: 0,
@@ -153,9 +159,10 @@ const RegisterLinesPage = () => {
 	const [startingPoints, setStartingPoints] = useState<pointType[]>(defaultPoints);
 	const [returnPoints, setReturnPoints] = useState<pointType[]>(defaultPoints);
 	const [tab, setTab] = useState(0);
-	const [description,setDescription] = useState('');
-	const [name,setName] = useState('');
-	const [currentPosition,setCurrentPosition] = useState();
+	const [description, setDescription] = useState('');
+	const [name, setName] = useState('');
+	const [currentPosition, setCurrentPosition] = useState();
+	const [open, setOpen] = useState(false);
 	const handleChange = (event: SelectChangeEvent) => {
 		setGroup(event.target.value);
 	};
@@ -163,6 +170,13 @@ const RegisterLinesPage = () => {
 	const handleTipo = (event: SelectChangeEvent) => {
 		setTipo(event.target.value);
 		setTab(parseInt(event.target.value, 10));
+	};
+	const handleClickOpen = () => {
+		setOpen(true);
+	};
+
+	const handleClose = () => {
+		setOpen(false);
 	};
 	const agregarPuntoLinea = () => {
 
@@ -309,43 +323,43 @@ const RegisterLinesPage = () => {
 
 	}
 
-	const postData=async()=>{
-		if(name === null || name=== "" || startingPoints.length === 0 || returnPoints.length === 0){
+	const postData = async () => {
+		if (name === null || name === "" || startingPoints.length === 0 || returnPoints.length === 0) {
 			Swal.fire({
 				icon: "warning",
 				title: "Debes llenar el Campo numero",
 				showConfirmButton: false,
 				timer: 1500,
-				
-			  });
-		}else{
+
+			});
+		} else {
 			let now = new Date();
-			let date:newDate = {
-					day: now.getDate(),
-					month: now.getMonth() + 1, // Los meses empiezan desde 0
-					year :now.getFullYear(),
-					hours : now.getHours(),
-					minutes : now.getMinutes(),
-					seconds : now.getSeconds(),
+			let date: newDate = {
+				day: now.getDate(),
+				month: now.getMonth() + 1, // Los meses empiezan desde 0
+				year: now.getFullYear(),
+				hours: now.getHours(),
+				minutes: now.getMinutes(),
+				seconds: now.getSeconds(),
 			}
-			let startingData:resumePoint[] = startingPoints.map((item)=>({
-				id:item.id,
-				position:item.posicion
+			let startingData: resumePoint[] = startingPoints.map((item) => ({
+				id: item.id,
+				position: item.posicion
 			}))
-			let returnData:resumePoint[] = returnPoints.map((item)=>({
-				id:item.id,
-				position:item.posicion
+			let returnData: resumePoint[] = returnPoints.map((item) => ({
+				id: item.id,
+				position: item.posicion
 			}))
-			const newId = uuid(); 
-			let newline:newLine = {
-				group:group,
+			const newId = uuid();
+			let newline: newLine = {
+				group: group,
 				id: newId,
 				date: date,
-				starting:startingData,
-				return:returnData,
-				name:"LINEA-"+name,
-				description:description,
-				lastModify:[]
+				starting: startingData,
+				return: returnData,
+				name: "LINEA-" + name,
+				description: description,
+				lastModify: []
 			}
 			await setDoc(doc(db, "lines", newId), newline);
 			setName('')
@@ -356,18 +370,18 @@ const RegisterLinesPage = () => {
 				title: "Exito",
 				text: "Linea Creada con Exito!",
 				icon: "success"
-			  });	  
+			});
 		}
 
 	}
 
 	const Map = useMemo(() => dynamic(
 		() => import('../components/shared/Map'),
-		{ 
-		  loading: () => <p>A map is loading</p>,
-		  ssr: false
+		{
+			loading: () => <p>A map is loading</p>,
+			ssr: false
 		}
-	  ), [])
+	), [])
 
 	useEffect(() => {
 		getData();
@@ -395,8 +409,8 @@ const RegisterLinesPage = () => {
 							</Typography>
 						</Grid>
 						<Grid item xs={12} lg={12}>
-							<div style={{width:"100%",height:300}}>
-								<Map position={[selectedPoint.latitud, selectedPoint.longitud]}/>
+							<div style={{ width: "100%", height: 300 }}>
+								<Map position={[selectedPoint.latitud, selectedPoint.longitud]} />
 							</div>
 						</Grid>
 						<Grid item xs={12} lg={8}>
@@ -406,9 +420,9 @@ const RegisterLinesPage = () => {
 								fullWidth
 								onChange={(event, newValue) => {
 									console.log(newValue);
-									if(newValue !== null){
+									if (newValue !== null) {
 										setSelectedPoint(newValue);
-									}else{
+									} else {
 										setSelectedPoint(initialPoint)
 									}
 								}}
@@ -458,16 +472,16 @@ const RegisterLinesPage = () => {
 								>
 									Numero de la linea
 								</Typography>
-								<TextFieldForm 
-									fullWidth 
-									type="number" 
-									size="small" 
+								<TextFieldForm
+									fullWidth
+									type="number"
+									size="small"
 									variant="outlined"
 									value={name}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-									setName(event.target.value);
+										setName(event.target.value);
 									}}
-								 />
+								/>
 							</Stack>
 						</Grid>
 						<Grid item xs={12} lg={6}>
@@ -491,7 +505,7 @@ const RegisterLinesPage = () => {
 										label="Grupo"
 										onChange={handleChange}
 									>
-										
+
 										<MenuItem value={1}>Grupo 1</MenuItem>
 										<MenuItem value={2}>Grupo 2</MenuItem>
 									</Select>
@@ -510,27 +524,27 @@ const RegisterLinesPage = () => {
 								>
 									Descripcion
 								</Typography>
-								<TextFieldForm 
-									multiline 
-									rows={4} 
-									fullWidth 
-									type="text" 
-									size="small"  
+								<TextFieldForm
+									multiline
+									rows={4}
+									fullWidth
+									type="text"
+									size="small"
 									variant="outlined"
 									value={description}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-									setDescription(event.target.value);
+										setDescription(event.target.value);
 									}}
-									/>
+								/>
 							</Stack>
 						</Grid>
 						<Grid item xs={12} >
-				
+
 							<Button variant="contained" fullWidth onClick={postData} color='secondary'>Registrar Linea</Button>
-			
-				</Grid>
-						
-						
+
+						</Grid>
+
+
 					</Grid>
 
 				</Grid>
@@ -541,18 +555,17 @@ const RegisterLinesPage = () => {
 							<Tab label="Puntos de Regreso" {...a11yProps(1)} />
 						</Tabs>
 					</Box>
-					<CustomTabPanel value={tab} index={0}>
+					<CustomTabPanel value={tab} index={0} >
 
-						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight:480 }}>
-							<Table aria-label="customized table">
+						<TableContainer component={Paper} style={{ overflow: "scroll", maxHeight: 480 }}>
+							<Button variant="contained" endIcon={<RouteIcon />} color='success'  onClick={handleClickOpen} sx={{ marginBottom: 2 }}>Mapear Puntos</Button>
+							<Table stickyHeader aria-label="customized table" >
 								<TableHead>
 									<TableRow>
 										<StyledTableCell></StyledTableCell>
 										<StyledTableCell>Posicion</StyledTableCell>
 										<StyledTableCell>Direccion</StyledTableCell>
 										<StyledTableCell align="right">Fastrack</StyledTableCell>
-										<StyledTableCell align="right">Longitud</StyledTableCell>
-										<StyledTableCell align="right">Latitud</StyledTableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
@@ -575,8 +588,7 @@ const RegisterLinesPage = () => {
 												{row.control_point}
 											</StyledTableCell>
 											<StyledTableCell align="right">{row.fastrack}</StyledTableCell>
-											<StyledTableCell align="right">{row.latitud}</StyledTableCell>
-											<StyledTableCell align="right">{row.longitud}</StyledTableCell>
+											
 										</StyledTableRow>
 									))}
 								</TableBody>
@@ -585,16 +597,15 @@ const RegisterLinesPage = () => {
 					</CustomTabPanel>
 					<CustomTabPanel value={tab} index={1}>
 
-						<TableContainer component={Paper} style={{ overflow: "scrollY", maxHeight: 480 }}>
-							<Table aria-label="customized table">
-							<TableHead>
+						<TableContainer component={Paper} style={{ overflow: "scroll", maxHeight: 480 }}>
+							<Button variant="contained" endIcon={<RouteIcon />} onClick={handleClickOpen}  color='success' sx={{ marginBottom: 2 }}>Mapear Puntos</Button>
+							<Table stickyHeader aria-label="customized table">
+								<TableHead>
 									<TableRow>
 										<StyledTableCell></StyledTableCell>
 										<StyledTableCell>Posicion</StyledTableCell>
 										<StyledTableCell>Direccion</StyledTableCell>
 										<StyledTableCell align="right">Fastrack</StyledTableCell>
-										<StyledTableCell align="right">Longitud</StyledTableCell>
-										<StyledTableCell align="right">Latitud</StyledTableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
@@ -617,27 +628,38 @@ const RegisterLinesPage = () => {
 												{row.control_point}
 											</StyledTableCell>
 											<StyledTableCell align="right">{row.fastrack}</StyledTableCell>
-											<StyledTableCell align="right">{row.latitud}</StyledTableCell>
-											<StyledTableCell align="right">{row.longitud}</StyledTableCell>
+
 										</StyledTableRow>
 									))}
 								</TableBody>
 							</Table>
 						</TableContainer>
 					</CustomTabPanel>
-
-
 				</Grid>
-	
-				
-				
 			</Grid>
-
-
-
+			<Dialog
+				maxWidth={"md"}
+				fullWidth={true}
+				open={open}
+				onClose={handleClose}
+			>
+				<DialogTitle>Optional sizes</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						You can set my maximum width and whether to adapt or not.
+					</DialogContentText>
+					<div style={{ width: "100%", height: 400 }}>
+						<MapRoute route={[]} position={[initialPoint.latitud,initialPoint.longitud]}/>
+					</div>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose}>Close</Button>
+				</DialogActions>
+			</Dialog>
 		</PageContainer>
 	);
 };
 
 export default RegisterLinesPage;
+
 
