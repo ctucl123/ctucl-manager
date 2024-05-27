@@ -4,7 +4,9 @@ import {
   IconMap2,
   IconList,
   IconAddressBook,
-  IconRectangularPrism
+  IconRectangularPrism,
+  IconBuildingStore,
+  IconChecks
 ,} from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -59,9 +61,15 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Registro de Punto",
-    icon: IconRectangularPrism,
-    href: "/puntos_recarga",
+    title: "Registro establecimiento",
+    icon: IconBuildingStore,
+    href: "/Recharge_points",
+  },
+  {
+    id: uniqueId(),
+    title: "Establecimientos activos",
+    icon: IconChecks,
+    href: "/Dashboard_recharge_points",
   },
 ];
 

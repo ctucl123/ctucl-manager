@@ -10,7 +10,7 @@ const SamplePage = () => {
       <Grid container spacing={1}>
 				<Grid item xs={12} lg={4}>
             <DashboardCard title="Sample Page">
-              <Typography>This is a sample page</Typography>
+              <Typography>Espacio para Dashboard</Typography>
             </DashboardCard>
         </Grid>
         </Grid>
