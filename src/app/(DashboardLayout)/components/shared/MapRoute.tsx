@@ -14,12 +14,12 @@ interface pointType {
 
 type Props = {
     position: LatLngExpression;
-    route: LatLngExpression[];
+    controlPoints: LatLngExpression[];
   };
 
 
-const limeOptions = { color: 'lime' }
-const MapRoute = ({ position,route }: Props) => {
+const limeOptions = { color: '#58D68D' }
+const MapRoute = ({ position,controlPoints }: Props) => {
     
   return (
     <MapContainer center={position} zoom={15} scrollWheelZoom={false} style={{height: "100%", width: "100%"}}>
@@ -28,7 +28,13 @@ const MapRoute = ({ position,route }: Props) => {
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=dc6c9fa0348f4922916b4b87c871e1ce"
       />
-      <Polyline pathOptions={limeOptions} positions={route} />
+      {controlPoints.map((item:LatLngExpression)=>
+      (
+        <Circle center={item} radius={30} />
+      )
+      )}
+      <Polyline pathOptions={limeOptions} positions={controlPoints} />
+      
     </MapContainer>
   )
 }

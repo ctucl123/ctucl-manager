@@ -634,9 +634,9 @@ const RegisterLinesPage = () => {
 								<TableHead>
 									<TableRow>
 										<StyledTableCell></StyledTableCell>
-										<StyledTableCell>Posicion</StyledTableCell>
 										<StyledTableCell>Direccion</StyledTableCell>
-										<StyledTableCell align="right">Fastrack</StyledTableCell>
+										<StyledTableCell align="center">Fastrack</StyledTableCell>
+										<StyledTableCell align="left">Posicion</StyledTableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
@@ -689,7 +689,7 @@ const RegisterLinesPage = () => {
 						You can set my maximum width and whether to adapt or not.
 					</DialogContentText>
 					<div style={{ width: "100%", height: 400 }}>
-						<MapRoute route={route} position={[initialPoint.latitud,initialPoint.longitud]}/>
+						<MapRoute controlPoints={route} position={[initialPoint.latitud,initialPoint.longitud]}/>
 					</div>
 				</DialogContent>
 				<DialogActions>
