@@ -31,14 +31,16 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Swal from 'sweetalert2';
 import RouteIcon from '@mui/icons-material/Route';
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import MapRoute from '../components/shared/MapRoute';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { LatLngExpression } from 'leaflet';
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
 		backgroundColor: theme.palette.common.black,
@@ -161,7 +163,7 @@ const RegisterLinesPage = () => {
 	const [tab, setTab] = useState(0);
 	const [description, setDescription] = useState('');
 	const [name, setName] = useState('');
-	const [currentPosition, setCurrentPosition] = useState();
+	const [route,setRoute] = useState<LatLngExpression[]>([]);
 	const [open, setOpen] = useState(false);
 	const handleChange = (event: SelectChangeEvent) => {
 		setGroup(event.target.value);
@@ -171,7 +173,9 @@ const RegisterLinesPage = () => {
 		setTipo(event.target.value);
 		setTab(parseInt(event.target.value, 10));
 	};
-	const handleClickOpen = () => {
+	const handleClickOpen = (points:pointType[]) => {
+		let route_points:LatLngExpression[] = points.map((item:pointType)=>([item.latitud,item.longitud]))
+		setRoute(route_points)
 		setOpen(true);
 	};
 
@@ -203,6 +207,7 @@ const RegisterLinesPage = () => {
 					}
 					aux_points.push(aux_data)
 					setStartingPoints(aux_points)
+
 				}
 			} else {
 				let aux_points_return = JSON.parse(JSON.stringify(returnPoints))
@@ -302,6 +307,9 @@ const RegisterLinesPage = () => {
 					return item
 				})
 				points_organized.sort((a: pointType, b: pointType) => a.posicion - b.posicion);
+				let route_points = points_organized.map((item:pointType)=>([item.latitud,item.longitud]))
+				console.log(route_points)
+				setRoute(route_points)
 				setStartingPoints(points_organized)
 			}
 
@@ -323,6 +331,21 @@ const RegisterLinesPage = () => {
 
 	}
 
+	const deletePoint = (point:pointType,starting:boolean)=>{
+
+		if(starting){
+			let aux_points:pointType[] = JSON.parse(JSON.stringify(startingPoints))
+			let filter_data = aux_points.filter((item:pointType)=> item.id !== point.id).map((item:pointType,index)=>{
+				item.posicion=index+1
+				return item;
+			})
+			setStartingPoints(filter_data)
+		}else{
+			let aux_points:pointType[] = JSON.parse(JSON.stringify(returnPoints))
+			let filter_data = aux_points.filter((item:pointType)=> item.id !== point.id)
+			setReturnPoints(filter_data)
+		}
+	}
 	const postData = async () => {
 		if (name === null || name === "" || startingPoints.length === 0 || returnPoints.length === 0) {
 			Swal.fire({
@@ -557,21 +580,36 @@ const RegisterLinesPage = () => {
 					</Box>
 					<CustomTabPanel value={tab} index={0} >
 
+							<Button variant="contained" endIcon={<RouteIcon />} color='success'  onClick={()=>{handleClickOpen(startingPoints)}} sx={{ marginBottom: 2 }}>Mapear Puntos</Button>
 						<TableContainer component={Paper} style={{ overflow: "scroll", maxHeight: 480 }}>
-							<Button variant="contained" endIcon={<RouteIcon />} color='success'  onClick={handleClickOpen} sx={{ marginBottom: 2 }}>Mapear Puntos</Button>
 							<Table stickyHeader aria-label="customized table" >
 								<TableHead>
 									<TableRow>
 										<StyledTableCell></StyledTableCell>
-										<StyledTableCell>Posicion</StyledTableCell>
 										<StyledTableCell>Direccion</StyledTableCell>
-										<StyledTableCell align="right">Fastrack</StyledTableCell>
+										<StyledTableCell align="center">Fastrack</StyledTableCell>
+										<StyledTableCell align="left">Posicion</StyledTableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
 									{startingPoints.map((row, index) => (
 										<StyledTableRow key={index}>
 											<StyledTableCell component="th" scope="row">
+											<Stack direction={"row"}>
+												<IconButton aria-label="delete" onClick={()=>{deletePoint(row,true)}}  color="error">
+													<DeleteIcon />
+												</IconButton>
+											
+												</Stack>
+											</StyledTableCell>
+											<StyledTableCell component="th" scope="row">
+												{row.control_point}
+											</StyledTableCell>
+											<StyledTableCell align="center">{row.fastrack}</StyledTableCell>
+											<StyledTableCell align="right" component="th" scope="row">
+												
+												<Stack direction={"row"} alignContent={"center"} gap={4} alignItems={"center"}>
+												<p>{row.posicion}</p>
 												<Stack>
 													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePoint(row, false) }} >
 														<KeyboardArrowUpIcon />
@@ -580,14 +618,8 @@ const RegisterLinesPage = () => {
 														<KeyboardArrowDownIcon />
 													</IconButton>
 												</Stack>
+												</Stack>
 											</StyledTableCell>
-											<StyledTableCell component="th" scope="row">
-												{row.posicion}
-											</StyledTableCell>
-											<StyledTableCell component="th" scope="row">
-												{row.control_point}
-											</StyledTableCell>
-											<StyledTableCell align="right">{row.fastrack}</StyledTableCell>
 											
 										</StyledTableRow>
 									))}
@@ -596,9 +628,8 @@ const RegisterLinesPage = () => {
 						</TableContainer>
 					</CustomTabPanel>
 					<CustomTabPanel value={tab} index={1}>
-
+							<Button variant="contained" endIcon={<RouteIcon />} onClick={()=>{handleClickOpen(startingPoints)}} color='success' sx={{ marginBottom: 2 }}>Mapear Puntos</Button>
 						<TableContainer component={Paper} style={{ overflow: "scroll", maxHeight: 480 }}>
-							<Button variant="contained" endIcon={<RouteIcon />} onClick={handleClickOpen}  color='success' sx={{ marginBottom: 2 }}>Mapear Puntos</Button>
 							<Table stickyHeader aria-label="customized table">
 								<TableHead>
 									<TableRow>
@@ -611,25 +642,34 @@ const RegisterLinesPage = () => {
 								<TableBody>
 									{returnPoints.map((row, index) => (
 										<StyledTableRow key={index}>
-											<StyledTableCell component="th" scope="row">
-												<Stack>
-													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePointReturn(row, false) }} >
-														<KeyboardArrowUpIcon />
-													</IconButton>
-													<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePointReturn(row, true) }} >
-														<KeyboardArrowDownIcon />
-													</IconButton>
-												</Stack>
-											</StyledTableCell>
-											<StyledTableCell component="th" scope="row">
-												{row.posicion}
-											</StyledTableCell>
-											<StyledTableCell component="th" scope="row">
-												{row.control_point}
-											</StyledTableCell>
-											<StyledTableCell align="right">{row.fastrack}</StyledTableCell>
-
-										</StyledTableRow>
+										<StyledTableCell component="th" scope="row">
+										<Stack direction={"row"}>
+											<IconButton aria-label="delete" onClick={()=>{deletePoint(row,false)}}  color="error">
+												<DeleteIcon />
+											</IconButton>
+										
+											</Stack>
+										</StyledTableCell>
+										<StyledTableCell component="th" scope="row">
+											{row.control_point}
+										</StyledTableCell>
+										<StyledTableCell align="center">{row.fastrack}</StyledTableCell>
+										<StyledTableCell align="right" component="th" scope="row">
+											
+											<Stack direction={"row"} alignContent={"center"} gap={4} alignItems={"center"}>
+											<p>{row.posicion}</p>
+											<Stack>
+												<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePointReturn(row, false) }} >
+													<KeyboardArrowUpIcon />
+												</IconButton>
+												<IconButton aria-label="delete" size="small" color="primary" onClick={() => { movePointReturn(row, true) }} >
+													<KeyboardArrowDownIcon />
+												</IconButton>
+											</Stack>
+											</Stack>
+										</StyledTableCell>
+										
+									</StyledTableRow>
 									))}
 								</TableBody>
 							</Table>
@@ -649,7 +689,7 @@ const RegisterLinesPage = () => {
 						You can set my maximum width and whether to adapt or not.
 					</DialogContentText>
 					<div style={{ width: "100%", height: 400 }}>
-						<MapRoute route={[]} position={[initialPoint.latitud,initialPoint.longitud]}/>
+						<MapRoute route={route} position={[initialPoint.latitud,initialPoint.longitud]}/>
 					</div>
 				</DialogContent>
 				<DialogActions>
