@@ -6,7 +6,8 @@ import {
   IconAddressBook,
   IconRectangularPrism,
   IconBuildingStore,
-  IconChecks
+  IconChecks,
+  IconXboxX
 ,} from "@tabler/icons-react";
 
 import { uniqueId } from "lodash";
@@ -67,10 +68,17 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Establecimientos activos",
+    title: "Activos",
     icon: IconChecks,
     href: "/Dashboard_recharge_points",
   },
+  {
+    id: uniqueId(),
+    title: "Eliminados",
+    icon: IconXboxX,
+    href: "/Dashboard_recharge_delete",
+  },
+  
 ];
 
 export default Menuitems;
